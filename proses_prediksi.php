@@ -100,21 +100,46 @@ $motorcycles = [
     ]
 ];
 
-function getRecommendation($age, $income_level, $main_priority, $style_detail) {
-    if ($main_priority === "efficiency") return "Gear Ultima";
-    if ($main_priority === "comfort") return "NMAX TURBO";
-    if ($main_priority === "style") {
-        if ($style_detail === "trendy_casual") return "Fazzio";
-        if ($style_detail === "classy_elegant") return "Grand Filano";
+function getRecommendation($age, $income_level, $main_purpose, $main_priority, $style_detail) {
+    // --- Aturan Baru yang Lebih Cerdas ---
+
+    // 1. Prioritas untuk hobi & performa
+    if ($main_purpose === 'hobby' || $main_priority === 'performance') {
+        if ($income_level === 'established' || $age > 30) {
+            return "NMAX TURBO"; // Pengendara mapan/dewasa yang ingin performa & kenyamanan touring
+        }
+        return "Aerox Alpha"; // Pilihan utama untuk jiwa muda & sporty
     }
-    if ($main_priority === "performance") {
-        if ($income_level === "established") return "NMAX TURBO";
-        return "Aerox Alpha";
+
+    // 2. Prioritas untuk gaya & penampilan
+    if ($main_priority === 'style') {
+        if ($style_detail === 'classy_elegant' || $age > 35) {
+            return "Grand Filano"; // Gaya elegan, lebih disukai usia dewasa
+        }
+        return "Fazzio"; // Gaya trendy, cocok untuk anak muda
     }
-    return "Gear Ultima";
+
+    // 3. Prioritas untuk keluarga atau kenyamanan
+    if ($main_purpose === 'family' || $main_priority === 'comfort') {
+        // Jika sangat mapan, NMAX adalah pilihan kenyamanan terbaik
+        if ($income_level === 'established') {
+            return "NMAX TURBO";
+        }
+        // Jika tidak, Gear adalah pilihan praktis terbaik untuk keluarga
+        return "Gear Ultima";
+    }
+
+    // 4. Untuk kebutuhan harian & efisiensi (Default)
+    // Jika usia lebih muda dan finansial stabil, Fazzio bisa jadi pilihan harian yang gaya
+    if ($age < 25 && $income_level !== 'entry') {
+        return "Fazzio";
+    }
+    
+    // Default untuk semua kebutuhan praktis & efisien
+    return "Gear Ultima"; 
 }
 
-$recommended_motor_name = getRecommendation($age, $income_level, $main_priority, $style_detail);
+$recommended_motor_name = getRecommendation($age, $income_level, $main_purpose, $main_priority, $style_detail);
 $response = $motorcycles[$recommended_motor_name] ?? ['error' => 'Motor tidak ditemukan'];
 
 
