@@ -8,25 +8,13 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;800&display=swap');
         :root { --primary-color: #007BFF; --secondary-color: #FFC107; }
-        body { font-family: 'Poppins', sans-serif; margin: 0; height: 100vh; overflow: hidden; background: linear-gradient(45deg, #e0eafc, #cfdef3); position: relative; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; height: 100vh; overflow: hidden; position: relative; }
 
-        /* --- MODIFIKASI: CSS TIRAI DAN LATAR BELAKANG ANIMASI --- */
         #curtain {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            z-index: 100;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; z-index: 1000;
         }
         .curtain-panel {
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(to right, 
-                #2c3e50 0%, #34495e 25%, #2c3e50 50%, 
-                #34495e 75%, #2c3e50 100%
-            );
+            width: 50%; height: 100%; background: linear-gradient(to right, #2c3e50 0%, #34495e 25%, #2c3e50 50%, #34495e 75%, #2c3e50 100%);
             box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
         }
         .curtain-panel.left { animation: open-left 1.5s cubic-bezier(0.8, 0, 0.2, 1) forwards 1s; }
@@ -36,183 +24,166 @@
         @keyframes open-right { from { transform: translateX(0); } to { transform: translateX(100%); } }
 
         .shape { 
-            position: absolute; display: block; list-style: none; 
-            background-color: rgba(255, 255, 255, 0.6);
-            border-radius: 10px; animation: float 25s linear infinite; 
-            bottom: -150px; transition: transform 0.2s ease-out; 
+            position: absolute; display: block; list-style: none; background-color: rgba(255, 255, 255, 0.6);
+            border-radius: 10px; animation: float 25s linear infinite; bottom: -150px; transition: transform 0.2s ease-out; 
         }
 
         @keyframes float { 
             0% { transform: translateY(0) rotate(0deg); opacity: 1; } 
             100% { transform: translateY(-120vh) rotate(720deg); opacity: 0; } 
         }
-
-        #loadingPage .quiz-question {
-            margin-top: 30px;
-        }
-
+        
         .gear-loader {
-            position: relative;
-            width: 250px;
-            height: 250px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            position: relative; width: 200px; height: 200px;
+            display: flex; justify-content: center; align-items: center;
         }
-
-        /* Style untuk gambar gear Anda */
         .spinning-gear {
-            width: 150px; /* Sesuaikan ukuran gambar gear di sini */
-            height: 150px;
+            width: 120px; height: 120px;
             animation: spin-clockwise 4s linear infinite;
         }
-
+        
         @keyframes spin-clockwise {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
-        
-        .page { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 100%; width: 100%; position: absolute; top: 0; left: 0; transition: opacity 0.8s ease-out, transform 0.8s ease-out; padding: 20px; box-sizing: border-box; }
-        .page.hidden { opacity: 0; transform: scale(0.9); pointer-events: none; }
-        .quiz-question { font-size: clamp(2rem, 7vw, 3.5rem); color: #333; font-weight: 700; margin-bottom: 40px; }
-        /* Tambahkan di dalam <style> */
-        #landingPage {
-            justify-content: flex-start; /* Ratakan konten ke atas */
-            padding-top: 15vh;
-            text-align: left;
+
+        .page {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; 
+            padding: 20px; box-sizing: border-box;
+            transition: transform 0.8s cubic-bezier(0.7, 0, 0.2, 1), opacity 0.8s ease-out;
+            opacity: 1; transform: translateX(0);
+        }
+        .page.hidden {
+            opacity: 0; pointer-events: none; transform: translateX(100%); 
+        }
+        .page.exit-active { transform: translateX(-100%); opacity: 0; }
+        .page.enter { transform: translateX(100%); opacity: 0; }
+        .page.enter-active { transform: translateX(0); opacity: 1; }
+
+        .dark-page-background {
             background: url('https://www.transparenttextures.com/patterns/asfalt-light.png'), linear-gradient(45deg, #2c3e50, #34495e);
-            background-blend-mode: overlay;
-            color: white;
+            background-blend-mode: overlay; color: white;
         }
 
-        .hero-content {
-            max-width: 1000px;
-            width: 100%;
-            position: relative;
+        .quiz-content, #landingPage {
+             display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 100%;
         }
-
-        #landingPage h1 {
-            font-size: clamp(3rem, 10vw, 7rem);
-            font-weight: 800;
-            margin: 0;
-            line-height: 1;
-            color: white;
-        }
-
-        #landingPage h1 .highlight {
-            color: #FFC107; /* Warna aksen kuning */
-        }
-
-        #landingPage p {
-            font-size: clamp(1rem, 4vw, 1.5rem);
-            margin: 20px 0 40px 0;
-            max-width: 500px;
-            color: #cfd8dc;
-        }
-
-        .road-line {
-            position: absolute;
-            bottom: -60px; /* Posisikan di bawah tombol */
-            left: 0;
-            width: 100%;
-            height: 10px;
-            background: repeating-linear-gradient(
-                90deg,
-                rgba(255, 255, 255, 0.5),
-                rgba(255, 255, 255, 0.5) 40px,
-                transparent 40px,
-                transparent 80px
-            );
-            animation: move-road 10s linear infinite;
-        }
-
-        @keyframes move-road {
-            from { background-position-x: 0; }
-            to { background-position-x: -160px; }
-        }        
+        .quiz-question { font-size: clamp(2rem, 6vw, 3.5rem); color: white; font-weight: 700; margin-bottom: 40px; }
         
+        #landingPage .hero-content {
+            display: flex; align-items: center; justify-content: center;
+            gap: 20px; width: 100%; max-width: 1200px; padding: 20px;
+        }
+        .hero-text { text-align: left; flex-shrink: 0; }
+        #landingPage h1 {
+            font-size: clamp(3rem, 8vw, 6rem); font-weight: 800; margin: 0; line-height: 1.1; color: white;
+        }
+        #landingPage h1 .highlight { color: #FFC107; }
+        #landingPage p {
+            font-size: clamp(1rem, 2vw, 1.2rem); margin: 20px 0 40px 0; max-width: 450px; color: #cfd8dc;
+        }
+        
+        /* --- MODIFIKASI: Mengganti Animasi Jalan dengan Animasi Tombol --- */
         .start-button {
-            background: #FFC107; /* Warna kuning dari maskot lama, terasa energik */
-            color: #333;
-            border: none;
-            padding: 20px 60px;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
+            background: #FFC107; color: #333; border: none; padding: 20px 60px; border-radius: 50px;
+            font-size: 1.2rem; font-weight: bold; cursor: pointer; 
             box-shadow: 0 5px 20px rgba(255, 193, 7, 0.4);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease; 
+            text-transform: uppercase; letter-spacing: 1px;
+            animation: pulse-glow 2s infinite ease-in-out; /* Menerapkan animasi baru */
+        }
+        
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 5px 20px rgba(255, 193, 7, 0.4);
+            }
+            50% {
+                box-shadow: 0 8px 35px rgba(255, 193, 7, 0.7);
+            }
+            100% {
+                box-shadow: 0 5px 20px rgba(255, 193, 7, 0.4);
+            }
+        }
+        
+        .start-button:hover { 
+            animation-play-state: paused; /* Jeda animasi saat di-hover */
+            transform: translateY(-5px) scale(1.05); 
+            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.5); 
         }
 
-        .start-button:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 8px 25px rgba(255, 193, 7, 0.5);
-        }
         .options-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%; max-width: 800px; }
-        .option-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; font-size: 1.1rem; font-weight: 600; color: #333; flex-basis: 250px; flex-grow: 1; }
-        .option-card:hover { transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0, 123, 255, 0.2); }
-        .age-display { font-size: clamp(3rem, 15vw, 8rem); font-weight: 800; color: var(--primary-color); margin: 20px 0; }
-        .age-slider { -webkit-appearance: none; appearance: none; width: 80%; max-width: 500px; height: 15px; background: #ddd; outline: none; border-radius: 10px; margin-bottom: 50px; }
-        .age-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 35px; height: 35px; background: var(--primary-color); cursor: pointer; border-radius: 50%; }
-        #ultimon-container { position: absolute; bottom: 30px; width: 250px; height: 220px; z-index: 10; transition: left 0.8s ease, right 0.8s ease, transform 0.2s ease-out; right: 30px; }
-        #ultimon-img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: contain; /* Memastikan gambar tidak gepeng */
-            transition: transform 0.3s ease; 
+        .option-card { 
+            background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); padding: 25px; border-radius: 15px; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.3s ease, background-color 0.3s ease; 
+            font-size: 1.1rem; font-weight: 600; color: white; flex-basis: 250px; flex-grow: 1; 
         }
+        .option-card:hover { transform: translateY(-10px); background-color: rgba(255, 193, 7, 0.8); color:#333; }
+        
+        .age-display { font-size: clamp(3rem, 15vw, 8rem); font-weight: 800; color: var(--secondary-color); margin: 20px 0; }
+        .age-slider { -webkit-appearance: none; appearance: none; width: 80%; max-width: 500px; height: 15px; background: rgba(255, 255, 255, 0.2); outline: none; border-radius: 10px; margin-bottom: 50px; }
+        .age-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 35px; height: 35px; background: var(--secondary-color); cursor: pointer; border-radius: 50%; }
+        
+        #ultimon-container {
+            position: absolute;
+            bottom: 30px; right: 30px; 
+            width: 250px; height: 220px; z-index: 10;
+            transition: all 0.5s cubic-bezier(0.7, 0, 0.2, 1);
+        }
+        #ultimon-container.on-hero {
+            position: relative; bottom: auto; right: auto;
+            width: clamp(300px, 35vw, 450px); 
+            height: clamp(280px, 33vw, 400px);
+        }
+        #ultimon-img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.3s ease; }
         #ultimon-img.excited { transform: rotate(-10deg) scale(1.1); }
-        #resultMotorName { font-size: clamp(2.5rem, 10vw, 6rem); font-weight: 800; color: var(--primary-color); margin: 10px 0; }
-        .loader { width: 60px; height: 60px; border: 8px solid #f3f3f3; border-top: 8px solid var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        #nameInput { background: transparent; border: none; border-bottom: 4px solid #ccc; width: 80%; max-width: 500px; text-align: center; font-size: clamp(1.5rem, 6vw, 3rem); font-family: 'Poppins', sans-serif; color: var(--primary-color); margin: 40px 0; padding: 10px; transition: border-color 0.3s ease; }
-        #nameInput:focus { outline: none; border-bottom-color: var(--primary-color); }
+        
+        #nameInput { 
+            background: transparent; border: none; border-bottom: 4px solid rgba(255, 255, 255, 0.5); width: 80%; max-width: 500px; 
+            text-align: center; font-size: clamp(1.5rem, 6vw, 3rem); font-family: 'Poppins', sans-serif; 
+            color: white; margin: 40px 0; padding: 10px; transition: border-color 0.3s ease; 
+        }
+        #nameInput:focus { outline: none; border-bottom-color: var(--secondary-color); }
+        
         #ultimon-container.confirm { animation: ultimon-confirm 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
         @keyframes ultimon-confirm {
-            0%   { transform: scale(1) translateY(0); }
-            30%  { transform: scale(1.1) translateY(-30px) rotate(-8deg); } /* Melompat lebih tinggi */
-            50%  { transform: scale(0.95) translateY(10px); }              /* Turun dan sedikit 'gepeng' */
-            70%  { transform: scale(1.05) translateY(-10px) rotate(4deg); } /* Pantulan kedua lebih kecil */
+            0%   { transform: scale(1) translateY(0); } 30%  { transform: scale(1.1) translateY(-30px) rotate(-8deg); }
+            50%  { transform: scale(0.95) translateY(10px); } 70%  { transform: scale(1.05) translateY(-10px) rotate(4deg); }
             100% { transform: scale(1) translateY(0); }
         }
-        #resultCard { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); width: 100%; max-width: 900px; text-align: left; opacity: 0; animation: result-fade-in 0.8s forwards 0.5s; }
+        
+        #resultCard { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 40px; background: rgba(0,0,0,0.2); padding: 40px; border-radius: 20px; 
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 15px 40px rgba(0,0,0,0.1); 
+            width: 100%; max-width: 900px; text-align: left; opacity: 0; animation: result-fade-in 0.8s forwards 0.5s; color: white; 
+        }
         @keyframes result-fade-in { to { opacity: 1; } }
         #resultImageContainer { display: flex; align-items: center; justify-content: center; }
         #resultMotorImage { max-width: 100%; max-height: 50vh; object-fit: contain; transform: scale(0.9); opacity: 0; animation: image-pop-in 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.8s; }
         @keyframes image-pop-in { to { transform: scale(1); opacity: 1; } }
-        #resultTitle { font-size: 1.2rem; color: #666; font-weight: 600; margin-top: 0; }
-        #resultMotorName { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; color: var(--primary-color); margin: 0 0 5px 0; }
-        #resultMotorPrice { font-size: 1.8rem; font-weight: 700; color: #333; margin: 0 0 20px 0; }
-        #resultMotorInfo { max-width: 600px; color: #555; font-size: 1rem; margin: 20px 0 30px 0; line-height: 1.6; }
+        #resultTitle { font-size: 1.2rem; color: #ccc; font-weight: 600; margin-top: 0; }
+        #resultMotorName { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; color: var(--secondary-color); margin: 0 0 5px 0; }
+        #resultMotorPrice { font-size: 1.8rem; font-weight: 700; color: white; margin: 0 0 20px 0; }
+        #resultMotorInfo { max-width: 600px; color: #cfd8dc; font-size: 1rem; margin: 20px 0 30px 0; line-height: 1.6; }
         .specs-container { display: flex; flex-wrap: wrap; gap: 10px; }
-        .spec-item { background: #f0f2f5; padding: 8px 15px; border-radius: 50px; font-size: 0.9rem; }
-        .spec-item strong { color: #555; font-weight: 600; }
-        @media (max-width: 768px) { #resultCard { grid-template-columns: 1fr; text-align: center; padding: 30px; max-height: 90vh; overflow-y: auto; } .specs-container { justify-content: center; } }
+        .spec-item { background: rgba(255, 255, 255, 0.1); padding: 8px 15px; border-radius: 50px; font-size: 0.9rem; }
+        .spec-item strong { color: #ccc; font-weight: 600; }
+        @media (max-width: 900px) { 
+            #landingPage .hero-content { flex-direction: column; text-align: center; }
+            .hero-text { text-align: center; }
+            #landingPage p { margin: 20px auto 40px; }
+            #resultCard { grid-template-columns: 1fr; text-align: center; padding: 30px; max-height: 90vh; overflow-y: auto; } 
+            .specs-container { justify-content: center; } 
+        }
 
         #customAlert {
-            position: fixed;
-            top: -100px; /* Mulai dari luar layar */
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(45deg, #d9534f, #c9302c);
-            color: white;
-            padding: 16px 30px;
-            border-radius: 50px;
-            box-shadow: 0 5px 20px rgba(217, 83, 79, 0.5);
-            z-index: 1002; /* Pastikan muncul di atas segalanya */
-            font-size: 1rem;
-            font-weight: 600;
-            opacity: 0;
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: linear-gradient(45deg, #d9534f, #c9302c);
+            color: white; padding: 16px 30px; border-radius: 50px; box-shadow: 0 5px 20px rgba(217, 83, 79, 0.5);
+            z-index: 1002; font-size: 1rem; font-weight: 600; opacity: 0;
             transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
             pointer-events: none;
         }
-
-        #customAlert.show {
-            top: 30px; /* Posisi akhir saat muncul */
-            opacity: 1;
-        }
+        #customAlert.show { top: 30px; opacity: 1; }
     </style>
 </head>
 <body>
@@ -224,108 +195,126 @@
     </div>
     
     <div class="background-shapes">
-        <div class="shape shape-1" data-depth="0.2"></div>
-        <div class="shape shape-2" data-depth="0.5"></div>
-        <div class="shape shape-3" data-depth="0.3"></div>
-        <div class="shape shape-4" data-depth="0.6"></div>
-        <div class="shape shape-5" data-depth="0.2"></div>
-        <div class="shape shape-6" data-depth="0.4"></div>
-        <div class="shape shape-7" data-depth="0.3"></div>
-        <div class="shape shape-8" data-depth="0.5"></div>
-        <div class="shape shape-9" data-depth="0.2"></div>
-        <div class="shape shape-10" data-depth="0.6"></div>
+        <div class="shape shape-1" data-depth="0.2"></div><div class="shape shape-2" data-depth="0.5"></div>
+        <div class="shape shape-3" data-depth="0.3"></div><div class="shape shape-4" data-depth="0.6"></div>
+        <div class="shape shape-5" data-depth="0.2"></div><div class="shape shape-6" data-depth="0.4"></div>
+        <div class="shape shape-7" data-depth="0.3"></div><div class="shape shape-8" data-depth="0.5"></div>
+        <div class="shape shape-9" data-depth="0.2"></div><div class="shape shape-10" data-depth="0.6"></div>
     </div>
 
-    <section class="page" id="landingPage">
+    <section class="page dark-page-background" id="landingPage">
         <div class="hero-content">
-            <h1>Temukan<br>Jodoh <span class="highlight">Rodamu.</span></h1>
-            <p>Setiap pengendara punya cerita. Kami bantu temukan motor yang paling pas untuk bab selanjutnya dalam ceritamu.</p>
-            <button class="start-button" id="startButton">Mulai Petualangan!</button>
-            <div class="road-line"></div>
+            <div class="hero-text">
+                <h1>Find Your<br><span class="highlight">Dream Ride.</span></h1>
+                <p>Setiap pengendara punya cerita. Kami bantu temukan motor yang paling pas untuk bab selanjutnya dalam ceritamu.</p>
+                <button class="start-button" id="startButton">Mulai Petualangan!</button>
+                </div>
         </div>
     </section>
-    <section class="page hidden" id="quizPage1">
-        <h1 class="quiz-question">Senang bertemu denganmu! <br> Boleh kami tahu namamu?</h1>
-        <input type="text" id="nameInput" placeholder="...">
-        <button class="start-button" id="nextButton1">Lanjut</button>
-    </section>
-    <section class="page hidden" id="quizPage2">
-        <h1 class="quiz-question" id="ageQuestion">Berapa usiamu?</h1>
-        <div class="age-display" id="ageDisplay">25</div>
-        <input type="range" min="17" max="70" value="25" class="age-slider" id="ageSlider">
-        <button class="start-button" id="nextButton2">Lanjut</button>
-    </section>
-    <section class="page hidden" id="quizPage3">
-        <h1 class="quiz-question">Mana yang paling menggambarkan<br>kondisi finansialmu?</h1>
-        <div class="options-container" id="incomeOptions">
-            <div class="option-card" data-value="entry">Baru Merintis Karir / Kuliah</div>
-            <div class="option-card" data-value="stable">Pendapatan Stabil</div>
-            <div class="option-card" data-value="established">Sangat Mapan</div>
+    
+    <section class="page hidden dark-page-background" id="quizPage1">
+        <div class="quiz-content">
+            <h1 class="quiz-question">Senang bertemu denganmu! <br> Boleh kami tahu namamu?</h1>
+            <input type="text" id="nameInput" placeholder="...">
+            <button class="start-button" id="nextButton1">Lanjut</button>
         </div>
     </section>
-    <section class="page hidden" id="quizPage4">
-        <h1 class="quiz-question">Motor ini akan lebih sering<br>menemanimu untuk apa?</h1>
-        <div class="options-container" id="purposeOptions">
-            <div class="option-card" data-value="daily_practical">Wara-wiri harian & bawa barang</div>
-            <div class="option-card" data-value="family">Aktivitas bareng keluarga</div>
-            <div class="option-card" data-value="hobby">Jalan-jalan sore & touring</div>
+    <section class="page hidden dark-page-background" id="quizPage2">
+         <div class="quiz-content">
+            <h1 class="quiz-question" id="ageQuestion">Berapa usiamu?</h1>
+            <div class="age-display" id="ageDisplay">25</div>
+            <input type="range" min="17" max="70" value="25" class="age-slider" id="ageSlider">
+            <button class="start-button" id="nextButton2">Lanjut</button>
         </div>
     </section>
-    <section class="page hidden" id="quizPage5">
-        <h1 class="quiz-question">Apa yang jadi prioritas #1<br>buatmu dari sebuah motor?</h1>
-        <div class="options-container" id="priorityOptions">
-            <div class="option-card" data-value="efficiency">Irit & Praktis</div>
-            <div class="option-card" data-value="style">Gaya & Penampilan Maksimal</div>
-            <div class="option-card" data-value="performance">Performa & Kecepatan</div>
-            <div class="option-card" data-value="comfort">Super Nyaman</div>
-        </div>
-    </section>
-    <section class="page hidden" id="quizPage6">
-        <h1 class="quiz-question">Gaya yang 'kamu banget' itu<br>seperti apa?</h1>
-        <div class="options-container" id="styleOptions">
-            <div class="option-card" data-value="trendy_casual">Casual & Selalu Ikut Tren</div>
-            <div class="option-card" data-value="classy_elegant">Elegan & Berkelas</div>
-        </div>
-    </section>
-    <section class="page hidden" id="loadingPage">
-        <div class="gear-loader">
-            <img src="images/my-gear.png" class="spinning-gear" alt="Loading...">
-        </div>
-        <h1 class="quiz-question" style="font-size: 2rem; margin-top:30px;">Mencarikan jodohmu...</h1>
-    </section>
-    <section class="page hidden" id="resultPage">
-        <div id="resultCard">
-            <div id="resultImageContainer">
-                <img src="" alt="Gambar Motor" id="resultMotorImage">
-            </div>
-            <div id="resultDetailsContainer">
-                <h1 id="resultTitle">Inilah jodohmu!</h1>
-                <h2 id="resultMotorName">NAMA MOTOR</h2>
-                <p id="resultMotorPrice">HARGA MOTOR</p>
-                <div class="specs-container" id="resultMotorSpecs"></div>
-                <p id="resultMotorInfo">Informasi menarik tentang motor ini.</p>
-                <button class="start-button" id="restartButton">Coba Lagi</button>
+    <section class="page hidden dark-page-background" id="quizPage3">
+        <div class="quiz-content">
+            <h1 class="quiz-question">Mana yang paling menggambarkan<br>kondisi finansialmu?</h1>
+            <div class="options-container" id="incomeOptions">
+                <div class="option-card" data-value="entry">Baru Merintis Karir / Kuliah</div>
+                <div class="option-card" data-value="stable">Pendapatan Stabil</div>
+                <div class="option-card" data-value="established">Sangat Mapan</div>
             </div>
         </div>
     </section>
+    <section class="page hidden dark-page-background" id="quizPage4">
+        <div class="quiz-content">
+            <h1 class="quiz-question">Motor ini akan lebih sering<br>menemanimu untuk apa?</h1>
+            <div class="options-container" id="purposeOptions">
+                <div class="option-card" data-value="daily_practical">Wara-wiri harian & bawa barang</div>
+                <div class="option-card" data-value="family">Aktivitas bareng keluarga</div>
+                <div class="option-card" data-value="hobby">Jalan-jalan sore & touring</div>
+            </div>
+        </div>
+    </section>
+    <section class="page hidden dark-page-background" id="quizPage5">
+        <div class="quiz-content">
+            <h1 class="quiz-question">Apa yang jadi prioritas #1<br>buatmu dari sebuah motor?</h1>
+            <div class="options-container" id="priorityOptions">
+                <div class="option-card" data-value="efficiency">Irit & Praktis</div>
+                <div class="option-card" data-value="style">Gaya & Penampilan Maksimal</div>
+                <div class="option-card" data-value="performance">Performa & Kecepatan</div>
+                <div class="option-card" data-value="comfort">Super Nyaman</div>
+            </div>
+        </div>
+    </section>
+    <section class="page hidden dark-page-background" id="quizPage6">
+        <div class="quiz-content">
+            <h1 class="quiz-question">Gaya yang 'kamu banget' itu<br>seperti apa?</h1>
+            <div class="options-container" id="styleOptions">
+                <div class="option-card" data-value="trendy_casual">Casual & Selalu Ikut Tren</div>
+                <div class="option-card" data-value="classy_elegant">Elegan & Berkelas</div>
+            </div>
+        </div>
+    </section>
+    <section class="page hidden dark-page-background" id="loadingPage">
+        <div class="quiz-content">
+            <div class="gear-loader">
+                <img src="images/my-gear.png" class="spinning-gear" alt="Loading...">
+            </div>
+            <h1 class="quiz-question" style="font-size: 2rem; margin-top:30px;">Mencarikan jodohmu...</h1>
+        </div>
+    </section>
+    <section class="page hidden dark-page-background" id="resultPage">
+        <div class="quiz-content">
+            <div id="resultCard">
+                <div id="resultImageContainer">
+                    <img src="" alt="Gambar Motor" id="resultMotorImage">
+                </div>
+                <div id="resultDetailsContainer">
+                    <h1 id="resultTitle">Inilah jodohmu!</h1>
+                    <h2 id="resultMotorName">NAMA MOTOR</h2>
+                    <p id="resultMotorPrice">HARGA MOTOR</p>
+                    <div class="specs-container" id="resultMotorSpecs"></div>
+                    <p id="resultMotorInfo">Informasi menarik tentang motor ini.</p>
+                    <button class="start-button" id="restartButton">Coba Lagi</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <div id="ultimon-container" data-depth="0.4">
         <img src="images/cute_dragon.png" id="ultimon-img" alt="Ultimon Mascot">
     </div>
 
 <script>
+    const pages = document.querySelectorAll('.page');
+    const ultimonContainer = document.getElementById('ultimon-container');
+    const heroContent = document.querySelector('#landingPage .hero-content');
+    const mainBody = document.body;
+    const userAnswers = {};
+    let currentPageIndex = 0;
 
     window.addEventListener('load', () => {
         const curtain = document.getElementById('curtain');
-        // Durasi animasi (1.5s) + delay (1s) = 2.5s atau 2500ms
         setTimeout(() => {
             curtain.style.display = 'none';
         }, 2500);
+        pages[0].classList.remove('hidden');
+        
+        heroContent.appendChild(ultimonContainer);
+        ultimonContainer.classList.add('on-hero');
     });
-
-    const pages = document.querySelectorAll('.page');
-    const ultimonContainer = document.getElementById('ultimon-container');
-    const userAnswers = {};
-    let currentPageIndex = 0;
 
     function actionWithAnimation(callback) {
         ultimonContainer.classList.add('confirm');
@@ -336,16 +325,40 @@
     }
 
     function goToPage(pageIndex, callback) {
-        if (pages[currentPageIndex]) pages[currentPageIndex].classList.add('hidden');
+        if (pageIndex === currentPageIndex) return;
+
+        const isComingFromHero = currentPageIndex === 0;
+        const isGoingToHero = pageIndex === 0;
+
+        if (isComingFromHero && !isGoingToHero) {
+            mainBody.appendChild(ultimonContainer);
+            ultimonContainer.classList.remove('on-hero');
+        }
+        
+        const currentPage = pages[currentPageIndex];
+        const nextPage = pages[pageIndex];
+
+        currentPage.classList.add('exit-active');
+        nextPage.classList.remove('hidden');
+        nextPage.classList.add('enter');
         setTimeout(() => {
-            if (pages[pageIndex]) {
-                pages[pageIndex].classList.remove('hidden');
-                currentPageIndex = pageIndex;
-                if (pageIndex === 0) { ultimonContainer.style.right = '30px'; ultimonContainer.style.left = 'auto'; } 
-                else { ultimonContainer.style.left = '30px'; ultimonContainer.style.right = 'auto'; }
-                if (callback) callback();
+            nextPage.classList.add('enter-active');
+            nextPage.classList.remove('enter');
+        }, 100);
+
+        setTimeout(() => {
+            currentPage.classList.add('hidden');
+            currentPage.classList.remove('exit-active');
+            nextPage.classList.remove('enter-active');
+
+            if (isGoingToHero) {
+                heroContent.appendChild(ultimonContainer);
+                ultimonContainer.classList.add('on-hero');
             }
-        }, 400);
+            
+            currentPageIndex = pageIndex;
+            if (callback) callback();
+        }, 900);
     }
     
     async function finishQuiz() {
@@ -358,7 +371,6 @@
                 })
                 .then(response => response.json())
                 .then(result => {
-                    // Mengisi konten ke struktur baru
                     document.getElementById('resultTitle').textContent = `Inilah jodohmu, ${userAnswers.name}!`;
                     document.getElementById('resultMotorImage').src = result.image;
                     document.getElementById('resultMotorName').textContent = result.name;
@@ -374,9 +386,7 @@
                         specsContainer.appendChild(specDiv);
                     });
                     
-                    setTimeout(() => {
-                        goToPage(8);
-                    }, 3500);
+                    setTimeout(() => { goToPage(8); }, 3500);
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -387,14 +397,10 @@
         });
     }
 
-    // --- EVENT LISTENERS (Tidak ada perubahan) ---
     document.getElementById('startButton').addEventListener('click', () => actionWithAnimation(() => goToPage(1)));
     document.getElementById('nextButton1').addEventListener('click', () => {
         const name = document.getElementById('nameInput').value.trim();
-        if (name === '') {
-            showCustomAlert('Nama tidak boleh kosong dong :)');
-            return; 
-        }
+        if (name === '') { showCustomAlert('Nama tidak boleh kosong dong :)'); return; }
         userAnswers.name = name;
         document.getElementById('ageQuestion').textContent = `Berapa usiamu, ${name}?`;
         actionWithAnimation(() => goToPage(2));
@@ -408,7 +414,7 @@
         container.addEventListener('click', (e) => {
             if (e.target.classList.contains('option-card')) {
                 actionWithAnimation(() => {
-                    const pageId = container.parentElement.id; const value = e.target.dataset.value;
+                    const pageId = container.closest('.page').id; const value = e.target.dataset.value;
                     if (pageId === 'quizPage3') { userAnswers.income_level = value; goToPage(4); } 
                     else if (pageId === 'quizPage4') { userAnswers.main_purpose = value; goToPage(5); } 
                     else if (pageId === 'quizPage5') { userAnswers.main_priority = value; if (value === 'style') { goToPage(6); } else { finishQuiz(); } } 
@@ -419,8 +425,8 @@
     });
     document.getElementById('restartButton').addEventListener('click', () => goToPage(0));
     document.querySelectorAll('.start-button, .option-card').forEach(el => {
-        const ultimonImg = document.getElementById('ultimon-img'); // Ganti ID di sini
-        if (ultimonImg) { // Pemeriksaan sederhana agar tidak error
+        const ultimonImg = document.getElementById('ultimon-img');
+        if (ultimonImg) {
             el.addEventListener('mouseover', () => ultimonImg.classList.add('excited'));
             el.addEventListener('mouseout', () => ultimonImg.classList.remove('excited'));
         }
@@ -436,14 +442,11 @@
             el.style.transform = `translateX(${moveX}px) translateY(${moveY}px)`;
         });
     });
-
     function showCustomAlert(message) {
         const alertBox = document.getElementById('customAlert');
         alertBox.textContent = message;
         alertBox.classList.add('show');
-        setTimeout(() => {
-            alertBox.classList.remove('show');
-        }, 3000);
+        setTimeout(() => { alertBox.classList.remove('show'); }, 3000);
     }
 </script>
 </body>
