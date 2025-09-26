@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DreamRide - Temukan Jodoh Roda Duamu!</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;800&display=swap');
+        :root { --primary-color: #007BFF; --secondary-color: #FFC107; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; height: 100vh; overflow: hidden; background: linear-gradient(45deg, #e0eafc, #cfdef3); position: relative; }
+
+        /* --- MODIFIKASI: CSS TIRAI DAN LATAR BELAKANG ANIMASI --- */
+        #curtain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            z-index: 100;
+        }
+        .curtain-panel {
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, 
+                #2c3e50 0%, #34495e 25%, #2c3e50 50%, 
+                #34495e 75%, #2c3e50 100%
+            );
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+        .curtain-panel.left { animation: open-left 1.5s cubic-bezier(0.8, 0, 0.2, 1) forwards 1s; }
+        .curtain-panel.right { animation: open-right 1.5s cubic-bezier(0.8, 0, 0.2, 1) forwards 1s; }
+
+        @keyframes open-left { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+        @keyframes open-right { from { transform: translateX(0); } to { transform: translateX(100%); } }
+
+        .shape { 
+            position: absolute; display: block; list-style: none; 
+            background-color: rgba(255, 255, 255, 0.6);
+            border-radius: 10px; animation: float 25s linear infinite; 
+            bottom: -150px; transition: transform 0.2s ease-out; 
+        }
+
+        @keyframes float { 
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; } 
+            100% { transform: translateY(-120vh) rotate(720deg); opacity: 0; } 
+        }
+
+        #loadingPage .quiz-question {
+            margin-top: 30px;
+        }
+
+        .gear-loader {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Style untuk gambar gear Anda */
+        .spinning-gear {
+            width: 150px; /* Sesuaikan ukuran gambar gear di sini */
+            height: 150px;
+            animation: spin-clockwise 4s linear infinite;
+        }
+
+        @keyframes spin-clockwise {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Variasi bentuk-bentuk di latar belakang */
+        .shape-1 { width: 80px; height: 80px; left: 25%; animation-duration: 20s; }
+        .shape-2 { width: 20px; height: 20px; left: 10%; animation-duration: 12s; animation-delay: 2s; }
+        .shape-3 { width: 20px; height: 20px; left: 70%; animation-duration: 29s; animation-delay: 4s; }
+        .shape-4 { width: 60px; height: 60px; left: 40%; animation-duration: 22s; border-radius: 50%;}
+        .shape-5 { width: 20px; height: 20px; left: 65%; animation-duration: 18s; }
+        .shape-6 { width: 110px; height: 110px; left: 75%; animation-duration: 12s; animation-delay: 3s; border-radius: 50%;}
+        .shape-7 { width: 150px; height: 150px; left: 35%; animation-duration: 17s; animation-delay: 7s; }
+        .shape-8 { width: 25px; height: 25px; left: 50%; animation-duration: 45s; animation-delay: 15s; }
+        .shape-9 { width: 15px; height: 15px; left: 20%; animation-duration: 35s; animation-delay: 2s; border-radius: 50%;}
+        .shape-10 { width: 130px; height: 130px; left: 85%; animation-duration: 11s; }
+        /* --- AKHIR MODIFIKASI CSS --- */
+        
+        .page { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; height: 100%; width: 100%; position: absolute; top: 0; left: 0; transition: opacity 0.8s ease-out, transform 0.8s ease-out; padding: 20px; box-sizing: border-box; }
+        .page.hidden { opacity: 0; transform: scale(0.9); pointer-events: none; }
+        .quiz-question { font-size: clamp(2rem, 7vw, 3.5rem); color: #333; font-weight: 700; margin-bottom: 40px; }
+        .start-button {
+            position: relative; /* Diperlukan untuk pseudo-element */
+            overflow: hidden;   /* Menyembunyikan kilat di luar tombol */
+            background: linear-gradient(45deg, var(--primary-color), #0056b3);
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0, 123, 255, 0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Elemen untuk efek kilat */
+        .start-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%; /* Mulai dari luar layar kiri */
+            width: 75%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: skewX(-25deg); /* Membuatnya miring */
+            transition: left 0.7s ease;
+        }
+
+        /* Saat kursor di atas tombol */
+        .start-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.5);
+        }
+        
+        /* Memicu animasi kilat saat kursor di atas */
+        .start-button:hover::before {
+            left: 125%; /* Pindahkan kilat ke luar layar kanan */
+        }
+        
+        /* Saat tombol ditekan */
+        .start-button:active {
+            transform: translateY(-2px) scale(0.98); /* Efek 'ditekan' */
+            box-shadow: 0 2px 10px rgba(0, 123, 255, 0.4);
+        }
+        .options-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%; max-width: 800px; }
+        .option-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; font-size: 1.1rem; font-weight: 600; color: #333; flex-basis: 250px; flex-grow: 1; }
+        .option-card:hover { transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0, 123, 255, 0.2); }
+        .age-display { font-size: clamp(3rem, 15vw, 8rem); font-weight: 800; color: var(--primary-color); margin: 20px 0; }
+        .age-slider { -webkit-appearance: none; appearance: none; width: 80%; max-width: 500px; height: 15px; background: #ddd; outline: none; border-radius: 10px; margin-bottom: 50px; }
+        .age-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 35px; height: 35px; background: var(--primary-color); cursor: pointer; border-radius: 50%; }
+        #ultimon-container { position: absolute; bottom: 30px; width: 250px; height: 220px; z-index: 10; transition: left 0.8s ease, right 0.8s ease, transform 0.2s ease-out; right: 30px; }
+        #ultimon-svg { width: 100%; height: 100%; transition: transform 0.3s ease; }
+        #ultimon-svg.excited { transform: rotate(-10deg) scale(1.1); }
+        #resultMotorName { font-size: clamp(2.5rem, 10vw, 6rem); font-weight: 800; color: var(--primary-color); margin: 10px 0; }
+        .loader { width: 60px; height: 60px; border: 8px solid #f3f3f3; border-top: 8px solid var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #nameInput { background: transparent; border: none; border-bottom: 4px solid #ccc; width: 80%; max-width: 500px; text-align: center; font-size: clamp(1.5rem, 6vw, 3rem); font-family: 'Poppins', sans-serif; color: var(--primary-color); margin: 40px 0; padding: 10px; transition: border-color 0.3s ease; }
+        #nameInput:focus { outline: none; border-bottom-color: var(--primary-color); }
+        #ultimon-container.confirm { animation: ultimon-confirm 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes ultimon-confirm { 0% { transform: scale(1) translateY(0); } 30% { transform: scale(1.1) translateY(-20px) rotate(-5deg); } 60% { transform: scale(0.95) translateY(5px); } 100% { transform: scale(1) translateY(0); } }
+        #resultCard { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); width: 100%; max-width: 900px; text-align: left; opacity: 0; animation: result-fade-in 0.8s forwards 0.5s; }
+        @keyframes result-fade-in { to { opacity: 1; } }
+        #resultImageContainer { display: flex; align-items: center; justify-content: center; }
+        #resultMotorImage { max-width: 100%; max-height: 50vh; object-fit: contain; transform: scale(0.9); opacity: 0; animation: image-pop-in 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards 0.8s; }
+        @keyframes image-pop-in { to { transform: scale(1); opacity: 1; } }
+        #resultTitle { font-size: 1.2rem; color: #666; font-weight: 600; margin-top: 0; }
+        #resultMotorName { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; color: var(--primary-color); margin: 0 0 5px 0; }
+        #resultMotorPrice { font-size: 1.8rem; font-weight: 700; color: #333; margin: 0 0 20px 0; }
+        #resultMotorInfo { max-width: 600px; color: #555; font-size: 1rem; margin: 20px 0 30px 0; line-height: 1.6; }
+        .specs-container { display: flex; flex-wrap: wrap; gap: 10px; }
+        .spec-item { background: #f0f2f5; padding: 8px 15px; border-radius: 50px; font-size: 0.9rem; }
+        .spec-item strong { color: #555; font-weight: 600; }
+        @media (max-width: 768px) { #resultCard { grid-template-columns: 1fr; text-align: center; padding: 30px; max-height: 90vh; overflow-y: auto; } .specs-container { justify-content: center; } }
+    </style>
+</head>
+<body>
+
+    <div id="curtain">
+        <div class="curtain-panel left"></div>
+        <div class="curtain-panel right"></div>
+    </div>
+    
+    <div class="background-shapes">
+        <div class="shape shape-1" data-depth="0.2"></div>
+        <div class="shape shape-2" data-depth="0.5"></div>
+        <div class="shape shape-3" data-depth="0.3"></div>
+        <div class="shape shape-4" data-depth="0.6"></div>
+        <div class="shape shape-5" data-depth="0.2"></div>
+        <div class="shape shape-6" data-depth="0.4"></div>
+        <div class="shape shape-7" data-depth="0.3"></div>
+        <div class="shape shape-8" data-depth="0.5"></div>
+        <div class="shape shape-9" data-depth="0.2"></div>
+        <div class="shape shape-10" data-depth="0.6"></div>
+    </div>
+
+    <section class="page" id="landingPage">
+        <h1 style="font-size: clamp(2.5rem, 10vw, 6rem);font-weight: 800;color: #333;margin: 0;">DreamRide</h1>
+        <p style="font-size: clamp(1rem, 4vw, 1.5rem);color: #555;margin: 10px 0 40px 0;max-width: 600px;padding: 0 20px;">Setiap pengendara punya cerita. Temukan motor yang pas untuk ceritamu.</p>
+        <button class="start-button" id="startButton">Mulai Petualangan!</button>
+    </section>
+    <section class="page hidden" id="quizPage1">
+        <h1 class="quiz-question">Senang bertemu denganmu! <br> Boleh kami tahu namamu?</h1>
+        <input type="text" id="nameInput" placeholder="...">
+        <button class="start-button" id="nextButton1">Lanjut</button>
+    </section>
+    <section class="page hidden" id="quizPage2">
+        <h1 class="quiz-question" id="ageQuestion">Berapa usiamu?</h1>
+        <div class="age-display" id="ageDisplay">25</div>
+        <input type="range" min="17" max="70" value="25" class="age-slider" id="ageSlider">
+        <button class="start-button" id="nextButton2">Lanjut</button>
+    </section>
+    <section class="page hidden" id="quizPage3">
+        <h1 class="quiz-question">Mana yang paling menggambarkan<br>kondisi finansialmu?</h1>
+        <div class="options-container" id="incomeOptions">
+            <div class="option-card" data-value="entry">Baru Merintis Karir / Kuliah</div>
+            <div class="option-card" data-value="stable">Pendapatan Stabil</div>
+            <div class="option-card" data-value="established">Sangat Mapan</div>
+        </div>
+    </section>
+    <section class="page hidden" id="quizPage4">
+        <h1 class="quiz-question">Motor ini akan lebih sering<br>menemanimu untuk apa?</h1>
+        <div class="options-container" id="purposeOptions">
+            <div class="option-card" data-value="daily_practical">Wara-wiri harian & bawa barang</div>
+            <div class="option-card" data-value="family">Aktivitas bareng keluarga</div>
+            <div class="option-card" data-value="hobby">Jalan-jalan sore & touring</div>
+        </div>
+    </section>
+    <section class="page hidden" id="quizPage5">
+        <h1 class="quiz-question">Apa yang jadi prioritas #1<br>buatmu dari sebuah motor?</h1>
+        <div class="options-container" id="priorityOptions">
+            <div class="option-card" data-value="efficiency">Irit & Praktis</div>
+            <div class="option-card" data-value="style">Gaya & Penampilan Maksimal</div>
+            <div class="option-card" data-value="performance">Performa & Kecepatan</div>
+            <div class="option-card" data-value="comfort">Super Nyaman</div>
+        </div>
+    </section>
+    <section class="page hidden" id="quizPage6">
+        <h1 class="quiz-question">Gaya yang 'kamu banget' itu<br>seperti apa?</h1>
+        <div class="options-container" id="styleOptions">
+            <div class="option-card" data-value="trendy_casual">Casual & Selalu Ikut Tren</div>
+            <div class="option-card" data-value="classy_elegant">Elegan & Berkelas</div>
+        </div>
+    </section>
+    <section class="page hidden" id="loadingPage">
+        <div class="gear-loader">
+            <img src="images/my-gear.png" class="spinning-gear" alt="Loading...">
+        </div>
+        <h1 class="quiz-question" style="font-size: 2rem; margin-top:30px;">Mencarikan jodohmu...</h1>
+    </section>
+    <section class="page hidden" id="resultPage">
+        <div id="resultCard">
+            <div id="resultImageContainer">
+                <img src="" alt="Gambar Motor" id="resultMotorImage">
+            </div>
+            <div id="resultDetailsContainer">
+                <h1 id="resultTitle">Inilah jodohmu!</h1>
+                <h2 id="resultMotorName">NAMA MOTOR</h2>
+                <p id="resultMotorPrice">HARGA MOTOR</p>
+                <div class="specs-container" id="resultMotorSpecs"></div>
+                <p id="resultMotorInfo">Informasi menarik tentang motor ini.</p>
+                <button class="start-button" id="restartButton">Coba Lagi</button>
+            </div>
+        </div>
+    </section>
+    <div id="ultimon-container" data-depth="0.4">
+        <svg id="ultimon-svg" viewBox="0 0 100 100">
+            <path d="M20,90 C20,70 80,70 80,90 Z" fill="#FFC107"/><circle cx="35" cy="45" r="8" fill="white"/><circle cx="65" cy="45" r="8" fill="white"/><circle cx="37" cy="47" r="3" fill="black"/><circle cx="63" cy="47" r="3" fill="black"/><path d="M40,65 Q50,75 60,65" stroke="black" stroke-width="3" fill="none"/><path d="M10,40 Q20,30 30,40" stroke="#FFC107" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M90,40 Q80,30 70,40" stroke="#FFC107" stroke-width="5" fill="none" stroke-linecap="round"/>
+        </svg>
+    </div>
+
+<script>
+
+    window.addEventListener('load', () => {
+        const curtain = document.getElementById('curtain');
+        // Durasi animasi (1.5s) + delay (1s) = 2.5s atau 2500ms
+        setTimeout(() => {
+            curtain.style.display = 'none';
+        }, 2500);
+    });
+
+    const pages = document.querySelectorAll('.page');
+    const ultimonContainer = document.getElementById('ultimon-container');
+    const userAnswers = {};
+    let currentPageIndex = 0;
+
+    function actionWithAnimation(callback) {
+        ultimonContainer.classList.add('confirm');
+        setTimeout(() => {
+            ultimonContainer.classList.remove('confirm');
+            if (callback) callback();
+        }, 600);
+    }
+
+    function goToPage(pageIndex, callback) {
+        if (pages[currentPageIndex]) pages[currentPageIndex].classList.add('hidden');
+        setTimeout(() => {
+            if (pages[pageIndex]) {
+                pages[pageIndex].classList.remove('hidden');
+                currentPageIndex = pageIndex;
+                if (pageIndex === 0) { ultimonContainer.style.right = '30px'; ultimonContainer.style.left = 'auto'; } 
+                else { ultimonContainer.style.left = '30px'; ultimonContainer.style.right = 'auto'; }
+                if (callback) callback();
+            }
+        }, 400);
+    }
+    
+    async function finishQuiz() {
+        actionWithAnimation(() => {
+            goToPage(7, () => {
+                fetch('proses_prediksi.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userAnswers)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    // Mengisi konten ke struktur baru
+                    document.getElementById('resultTitle').textContent = `Inilah jodohmu, ${userAnswers.name}!`;
+                    document.getElementById('resultMotorImage').src = result.image;
+                    document.getElementById('resultMotorName').textContent = result.name;
+                    document.getElementById('resultMotorPrice').textContent = result.price;
+                    document.getElementById('resultMotorInfo').textContent = result.info;
+                    
+                    const specsContainer = document.getElementById('resultMotorSpecs');
+                    specsContainer.innerHTML = '';
+                    result.specs.forEach(spec => {
+                        const specDiv = document.createElement('div');
+                        specDiv.className = 'spec-item';
+                        specDiv.innerHTML = `<strong>${spec.label}:</strong> ${spec.value}`;
+                        specsContainer.appendChild(specDiv);
+                    });
+                    
+                    setTimeout(() => {
+                        goToPage(8);
+                    }, 3500);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Oops, terjadi kesalahan saat mengambil data motor.');
+                    goToPage(0);
+                });
+            });
+        });
+    }
+
+    // --- EVENT LISTENERS (Tidak ada perubahan) ---
+    document.getElementById('startButton').addEventListener('click', () => actionWithAnimation(() => goToPage(1)));
+    document.getElementById('nextButton1').addEventListener('click', () => {
+        const name = document.getElementById('nameInput').value.trim();
+        if (name === '') { return alert('Nama tidak boleh kosong dong :)'); }
+        userAnswers.name = name;
+        document.getElementById('ageQuestion').textContent = `Berapa usiamu, ${name}?`;
+        actionWithAnimation(() => goToPage(2));
+    });
+    document.getElementById('ageSlider').addEventListener('input', (e) => document.getElementById('ageDisplay').textContent = e.target.value);
+    document.getElementById('nextButton2').addEventListener('click', () => {
+        userAnswers.age = document.getElementById('ageSlider').value;
+        actionWithAnimation(() => goToPage(3));
+    });
+    document.querySelectorAll('.options-container').forEach(container => {
+        container.addEventListener('click', (e) => {
+            if (e.target.classList.contains('option-card')) {
+                actionWithAnimation(() => {
+                    const pageId = container.parentElement.id; const value = e.target.dataset.value;
+                    if (pageId === 'quizPage3') { userAnswers.income_level = value; goToPage(4); } 
+                    else if (pageId === 'quizPage4') { userAnswers.main_purpose = value; goToPage(5); } 
+                    else if (pageId === 'quizPage5') { userAnswers.main_priority = value; if (value === 'style') { goToPage(6); } else { finishQuiz(); } } 
+                    else if (pageId === 'quizPage6') { userAnswers.style_detail = value; finishQuiz(); }
+                });
+            }
+        });
+    });
+    document.getElementById('restartButton').addEventListener('click', () => goToPage(0));
+    document.querySelectorAll('.start-button, .option-card').forEach(el => {
+        const ultimonSvg = document.getElementById('ultimon-svg');
+        el.addEventListener('mouseover', () => ultimonSvg.classList.add('excited'));
+        el.addEventListener('mouseout', () => ultimonSvg.classList.remove('excited'));
+    });
+    document.addEventListener('mousemove', function(e) {
+        const parallaxElements = document.querySelectorAll('[data-depth]');
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        parallaxElements.forEach(el => {
+            const depth = el.getAttribute('data-depth');
+            const moveX = (e.clientX - centerX) * depth / 20;
+            const moveY = (e.clientY - centerY) * depth / 20;
+            el.style.transform = `translateX(${moveX}px) translateY(${moveY}px)`;
+        });
+    });
+</script>
+</body>
+</html>
